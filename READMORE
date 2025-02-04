@@ -1,0 +1,4 @@
+silahkan ganti token di .env dengan token yg telah di peroleh dari telegram 
+/sn (sn awal ) (sn akhir) === untuk mengurutkan list berdasarkan awal akhir
+/sn (sn awal), (4digit kode yang beda ) , (4 digit kode beda) ==== menurutkan list yg sama untuk awalnya saja tapi 4 angka terakhir beda
+/histori == menampilakan hasil imputan secara simple , jika ingin lebih detail bisa di klik hasilnya 
