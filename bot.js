@@ -32,7 +32,7 @@ bot.onText(/\/sn (\d+) (\d+)/, (msg, match) => {
 });
 
 // 📌 Perintah untuk mendapatkan serial berdasarkan input manual (dengan prefix)
-bot.onText(/\/serial (.+)/, (msg, match) => {
+bot.onText(/\/sn (.+)/, (msg, match) => {
     const chatId = msg.chat.id;
     const inputSerials = match[1].split(",").map(num => num.trim());
     let serials = [];
@@ -71,17 +71,18 @@ bot.onText(/\/history/, (msg) => {
     if (history.length === 0) {
         return bot.sendMessage(chatId, "📌 Belum ada riwayat tersedia.");
     }
+
     // Buat daftar tombol untuk setiap riwayat
     const options = {
-    reply_markup: {
-        inline_keyboard: history.map((record, index) => [
-            {
-                text: `📌 ${record.serials[0]} → ${record.serials[record.serials.length - 1]} (🕒 ${formatDate(record.date)})`,
-                callback_data: `history_${index}`
-            }
-        ])
-    }
-};
+        reply_markup: {
+            inline_keyboard: history.map((record, index) => [
+                {
+                    text: `📌 ${record.serials[0]} → ${record.serials[record.serials.length - 1]} (🕒 ${formatDate(record.date)})`,
+                    callback_data: `history_${index}`
+                }
+            ])
+        }
+    };
 
     bot.sendMessage(chatId, "📜 **Riwayat Serial Number:**", options);
 });
@@ -102,6 +103,32 @@ bot.on("callback_query", (query) => {
         }
     }
 });
+
+// 📌 Fungsi untuk mengelompokkan riwayat berdasarkan tanggal
+function formatHistory(histories) {
+    let result = "";
+    let currentDate = new Date().toISOString().split("T")[0]; // Tanggal hari ini
+    let groupedByDate = {};
+
+    histories.forEach(({ date, serials }) => {
+        let recordDate = date.split("T")[0]; // Ambil bagian tanggal saja
+        let time = date.split("T")[1].split(".")[0]; // Ambil jam, menit, detik
+
+        if (!groupedByDate[recordDate]) {
+            groupedByDate[recordDate] = [];
+        }
+        groupedByDate[recordDate].push(`📌 ${serials[0]} → ${serials[serials.length - 1]} (🕒 ${time})`);
+    });
+
+    Object.keys(groupedByDate).forEach((date) => {
+        if (date !== currentDate) {
+            result += `🗓 ${date}\n`; // Tambahkan tanggal jika beda hari
+        }
+        result += groupedByDate[date].join("\n") + "\n";
+    });
+
+    return result.trim();
+}
 
 // 📌 Fungsi untuk memformat tanggal agar lebih mudah dibaca
 function formatDate(dateString) {
